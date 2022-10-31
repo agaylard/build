@@ -26,13 +26,14 @@ OUT_FILE=$OUTPATH/ISP_SD_BOOOT.img
 FAT_IMG_OUT=fat.img
 EXT_ENV=uEnv.txt
 EXT_ENV_RISCV=uEnv_riscv.txt
-EXT_ENV_A64=uEnv_a64.txt
+EXT_ENV_A64_Q645=uEnv_a64_q645.txt
+EXT_ENV_A64_SP7350=uEnv_a64_sp7350.txt
 NONOS_IMG=a926.img
 RC_SDCARDBOOTDIR=$ROOT_DIR_IN/etc/init.d
 RC_SDCARDBOOTFILE=rc.sdcardboot
 
 # Size of FAT32 partition size (unit: M)
-FAT_IMG_SIZE_M=128
+FAT_IMG_SIZE_M=256
 
 # Block size is 512 bytes for sfdisk and FAT32 sector is 1024 bytes
 BLOCK_SIZE=512
@@ -61,7 +62,9 @@ fi
 if [ $1 -eq "1" ]; then
 	cp $EXT_ENV_RISCV $OUTPATH/$EXT_ENV
 elif [ $1 -eq "2" ]; then
-	cp $EXT_ENV_A64 $OUTPATH/$EXT_ENV
+	cp $EXT_ENV_A64_Q645 $OUTPATH/$EXT_ENV
+elif [ $1 -eq "3" ]; then
+	cp $EXT_ENV_A64_SP7350 $OUTPATH/$EXT_ENV
 else
 	cp $EXT_ENV $OUTPATH
 fi
@@ -81,14 +84,14 @@ fi
 
 if [ -x "$(command -v mkfs.fat)" ]; then
 	echo '###### do mkfs.fat cmd ########'
-	mkfs.fat -F 32 -C "$FAT_IMG_OUT" "$(($partition_size_1/$FAT_SECTOR))"
+	mkfs.fat -F 32 -C -s 4 "$FAT_IMG_OUT" "$(($partition_size_1/$FAT_SECTOR))"
 	if [ $? -ne 0 ]; then
 		exit
 	fi
 else
 	if [ -x "$(command -v mkfs.vfat)" ]; then
 		echo '###### do mkfs.vfat cmd ########'
-		mkfs.vfat -F 32 -C "$FAT_IMG_OUT" "$(($partition_size_1/$FAT_SECTOR))"
+		mkfs.vfat -F 32 -C -s 4 "$FAT_IMG_OUT" "$(($partition_size_1/$FAT_SECTOR))"
 		if [ $? -ne 0 ]; then
 			exit
 		fi
